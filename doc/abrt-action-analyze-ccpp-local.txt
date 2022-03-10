@@ -27,9 +27,6 @@ EVENT=analyze_LocalGDB analyzer=CCpp
 
 OPTIONS
 -------
---without-di::
-    Don't install debuginfo packages
-
 --without-bz::
     Don't search bugzilla for existing duplicates
 
