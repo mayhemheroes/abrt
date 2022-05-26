@@ -1,5 +1,5 @@
 project: rnshah9/abrt
-target: abrt
+target: pstoreoops
 tests: null
 
 cmds:
