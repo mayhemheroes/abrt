@@ -17,4 +17,6 @@ FROM fedora as package
 
 COPY --from=builder /deps /deps
 COPY --from=builder /repo/src/hooks/.libs/abrt-merge-pstoreoops /repo/src/hooks/.libs/abrt-merge-pstoreoops
+COPY --from=builder /etc/libreport /etc/libreport
+
 ENV LD_LIBRARY_PATH=/deps
