@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 fedora
+FROM --platform=linux/amd64 fedora as builder
 
 RUN yum install rpm-build -y
 
@@ -9,3 +9,12 @@ RUN tito build --rpm --test
 RUN ./autogen.sh
 RUN ./configure
 RUN make -j8
+
+RUN mkdir -p /deps
+RUN ldd /repo/src/hooks/.libs/abrt-merge-pstoreoops | tr -s '[:blank:]' '\n' | grep '^/' | xargs -I % sh -c 'cp % /deps;'
+
+FROM fedora as package
+
+COPY --from=builder /deps /deps
+COPY --from=builder /repo/src/hooks/.libs/abrt-merge-pstoreoops /repo/src/hooks/.libs/abrt-merge-pstoreoops
+ENV LD_LIBRARY_PATH=/deps

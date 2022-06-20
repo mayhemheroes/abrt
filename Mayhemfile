@@ -1,6 +1,5 @@
-project: rnshah9/abrt
-target: pstoreoops
-tests: null
+project: abrt
+target: abrt-merge-pstoreoops
 
 cmds:
   - cmd: /repo/src/hooks/.libs/abrt-merge-pstoreoops @@
