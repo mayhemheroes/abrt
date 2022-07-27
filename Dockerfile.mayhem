@@ -2,21 +2,15 @@ FROM --platform=linux/amd64 fedora as builder
 
 RUN yum install rpm-build -y
 
-ADD . /repo
+COPY . /repo
 WORKDIR /repo
 RUN ./autogen.sh sysdeps --install
 RUN tito build --rpm --test
 RUN ./autogen.sh
-RUN ./configure
+RUN ./configure --prefix=/install
 RUN make -j8
-
-RUN mkdir -p /deps
-RUN ldd /repo/src/hooks/.libs/abrt-merge-pstoreoops | tr -s '[:blank:]' '\n' | grep '^/' | xargs -I % sh -c 'cp % /deps;'
+RUN make install
 
 FROM fedora as package
-
-COPY --from=builder /deps /deps
-COPY --from=builder /repo/src/hooks/.libs/abrt-merge-pstoreoops /repo/src/hooks/.libs/abrt-merge-pstoreoops
-COPY --from=builder /etc/libreport /etc/libreport
-
-ENV LD_LIBRARY_PATH=/deps
+RUN yum install satyr libreport -y
+COPY --from=builder /install /install

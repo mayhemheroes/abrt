@@ -2,4 +2,4 @@ project: abrt
 target: abrt-merge-pstoreoops
 
 cmds:
-  - cmd: /repo/src/hooks/.libs/abrt-merge-pstoreoops @@
+  - cmd: /install/bin/abrt-merge-pstoreoops @@
