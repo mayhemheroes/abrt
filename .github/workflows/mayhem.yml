@@ -51,7 +51,8 @@ jobs:
       fail-fast: false
       matrix:
         mayhemfile:
-          - mayhem/Mayhemfile
+          - mayhem/Mayhemfile_abrt_koops_extract_version
+          - mayhem/Mayhemfile_abrt-dump-oops
 
     steps:
       - uses: actions/checkout@v2

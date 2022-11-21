@@ -1,5 +1,0 @@
-project: abrt
-target: abrt-merge-pstoreoops
-
-cmds:
-  - cmd: /install/bin/abrt-merge-pstoreoops @@

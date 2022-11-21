@@ -1,0 +1,5 @@
+project: abrt
+target: abrt-dump-oops
+
+cmds:
+  - cmd: /install/bin/abrt-dump-oops @@
