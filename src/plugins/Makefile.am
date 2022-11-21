@@ -1,11 +1,8 @@
 -include ../../config.mak
 
 bin_SCRIPTS = \
-    abrt-action-install-debuginfo \
-    abrt-action-analyze-core \
     abrt-action-analyze-vulnerability \
     abrt-action-list-dsos \
-    abrt-action-perform-ccpp-analysis \
     abrt-action-analyze-ccpp-local \
     abrt-action-notify
 
@@ -30,18 +27,10 @@ bin_PROGRAMS = \
     abrt-action-generate-core-backtrace \
     abrt-action-analyze-backtrace
 
-if BUILD_RETRACE_CLIENT
-bin_PROGRAMS += \
-    abrt-retrace-client
-endif
-
 if BUILD_BODHI
 bin_PROGRAMS += \
     abrt-bodhi
 endif
-
-libexec_PROGRAMS = \
-    abrt-action-install-debuginfo-to-abrt-cache
 
 libexec_SCRIPTS = \
     abrt-action-generate-machine-id \
@@ -53,7 +42,6 @@ eventsdir = $(EVENTS_DIR)
 dist_events_DATA = \
     analyze_CCpp.xml \
     analyze_LocalGDB.xml \
-    analyze_RetraceServer.xml \
     collect_xsession_errors.xml \
     collect_GConf.xml \
     collect_vimrc_user.xml \
@@ -105,24 +93,16 @@ if BUILD_PYTHON3
 dist_eventsconf_DATA += python3_event.conf
 endif
 
-if BUILD_RETRACE_CLIENT
-dist_eventsconf_DATA += \
-    ccpp_retrace_event.conf
-endif
-
 if BUILD_BODHI
 dist_eventsconf_DATA += \
     bodhi_event.conf
 endif
 
 PYTHON_FILES = \
-    abrt-action-install-debuginfo.in \
     abrt-action-list-dsos \
-    abrt-action-analyze-core \
     abrt-action-analyze-vulnerability \
     abrt-action-check-oops-for-alt-component.in \
     abrt-action-check-oops-for-hw-error.in \
-    abrt-action-perform-ccpp-analysis.in \
     abrt-action-notify
 
 if BUILD_BODHI
@@ -139,8 +119,6 @@ EXTRA_DIST = \
     analyze_BodhiUpdates.xml.in \
     analyze_CCpp.xml.in \
     analyze_LocalGDB.xml.in \
-    analyze_RetraceServer.xml.in \
-    abrt-action-analyze-core.in \
     abrt-action-generate-machine-id \
     abrt-action-ureport \
     abrt-gdb-exploitable \
@@ -153,11 +131,6 @@ EXTRA_DIST = \
     abrt_koops.catalog.in \
     python3_abrt.catalog.in \
     abrt_xorg.catalog.in
-
-if BUILD_RETRACE_CLIENT
-EXTRA_DIST += \
-    https-utils.h
-endif
 
 if BUILD_ADDON_VMCORE
 bin_SCRIPTS += \
@@ -424,46 +397,6 @@ abrt_action_analyze_backtrace_LDADD = \
     $(LIBREPORT_LIBS) \
     $(SATYR_LIBS)
 
-# SUID application, building with full relro and PIE
-# for increased security.
-abrt_action_install_debuginfo_to_abrt_cache_SOURCES = \
-    abrt-action-install-debuginfo-to-abrt-cache.c
-abrt_action_install_debuginfo_to_abrt_cache_CPPFLAGS = \
-    -I$(srcdir)/../include \
-    -I$(srcdir)/../lib \
-    -D_GNU_SOURCE \
-    -DBIN_DIR=\"$(bindir)\" \
-    -DSBIN_DIR=\"$(sbindir)\" \
-    -DLARGE_DATA_TMP_DIR=\"$(LARGE_DATA_TMP_DIR)\" \
-    $(LIBREPORT_CFLAGS) \
-    -Wall -Wwrite-strings \
-    -fPIE
- abrt_action_install_debuginfo_to_abrt_cache_LDADD = \
-    $(LIBREPORT_LIBS) \
-    ../lib/libabrt.la
- abrt_action_install_debuginfo_to_abrt_cache_LDFLAGS = \
-    -Wl,-z,relro -Wl,-z,now \
-    -pie
-
-if BUILD_RETRACE_CLIENT
-abrt_retrace_client_SOURCES = \
-    abrt-retrace-client.c \
-    https-utils.c
- abrt_retrace_client_CFLAGS = \
-    -I$(srcdir)/../include \
-    -I$(srcdir)/../lib \
-     $(GLIB_CFLAGS) \
-     -D_GNU_SOURCE \
-     -DDEFAULT_DUMP_DIR_MODE=$(DEFAULT_DUMP_DIR_MODE) \
-     -DLARGE_DATA_TMP_DIR=\"$(LARGE_DATA_TMP_DIR)\" \
-     $(LIBREPORT_CFLAGS) \
-     $(LIBSOUP_CFLAGS)
- abrt_retrace_client_LDADD = \
-     $(LIBREPORT_LIBS) \
-     $(LIBSOUP_LIBS) \
-     $(SATYR_LIBS)
-endif
-
 if BUILD_BODHI
 abrt_bodhi_SOURCES = \
     bodhi.c
@@ -489,19 +422,10 @@ endif
 
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
-DISTCLEANFILES = abrt-action-analyze-ccpp-local abrt-action-analyze-core
-
-abrt-action-perform-ccpp-analysis: abrt-action-perform-ccpp-analysis.in
-	sed -e s,\@libexecdir\@,$(libexecdir),g \
-        $< >$@
+DISTCLEANFILES = abrt-action-analyze-ccpp-local
 
 abrt-action-analyze-ccpp-local: abrt-action-analyze-ccpp-local.in
 	sed -e s,\@LIBEXEC_DIR\@,$(libexecdir),g \
-        $< >$@
-
-abrt-action-analyze-core: abrt-action-analyze-core.in
-	sed -e s,\@localedir\@,$(localedir),g \
-        -e s,\@PACKAGE\@,$(PACKAGE),g \
         $< >$@
 
 %.catalog: %.catalog.in

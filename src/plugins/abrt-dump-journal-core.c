@@ -108,7 +108,7 @@ struct occurrence_queue
 
     struct last_occurrence
     {
-        unsigned oqlc_stamp;
+        time_t oqlc_stamp;
         char *oqlc_executable;
     } oq_occurrences[8];
 
@@ -117,7 +117,7 @@ struct occurrence_queue
     .oq_size = 8,
 };
 
-static unsigned
+static time_t
 abrt_journal_get_last_occurrence(const char *executable)
 {
     if (s_queue.oq_head < 0)
@@ -140,7 +140,7 @@ abrt_journal_get_last_occurrence(const char *executable)
 }
 
 static void
-abrt_journal_update_occurrence(const char *executable, unsigned ts)
+abrt_journal_update_occurrence(const char *executable, time_t ts)
 {
     if (s_queue.oq_head < 0)
         s_queue.oq_head = 0;
@@ -440,8 +440,8 @@ abrt_journal_watch_cores(abrt_journal_watch_t *watch, void *user_data)
 
     // do not dump too often
     //   ignore crashes of a single executable appearing in THROTTLE s (keep last 10 executable)
-    const unsigned current = time(NULL);
-    const unsigned last = abrt_journal_get_last_occurrence(info.ci_executable_path);
+    const time_t current = time(NULL);
+    const time_t last = abrt_journal_get_last_occurrence(info.ci_executable_path);
 
     if (current < last)
     {
@@ -453,11 +453,11 @@ abrt_journal_watch_cores(abrt_journal_watch_t *watch, void *user_data)
         goto watch_cleanup;
     }
 
-    const unsigned sub = current - last;
+    const double sub = difftime(current, last);
     if (sub < conf->awc_throttle)
     {
         /* We don't want to update the counter here. */
-        error_msg(_("Not saving repeating crash after %ds (limit is %ds)"), sub, conf->awc_throttle);
+        error_msg(_("Not saving repeating crash after %.0fs (limit is %ds)"), sub, conf->awc_throttle);
         goto watch_cleanup;
     }
 
@@ -628,16 +628,21 @@ main(int argc, char *argv[])
             error_msg_and_die(_("Cannot open systemd-journal"));
     }
 
+    if (opts & OPT_e) {
+        if (abrt_journal_seek_tail(journal) < 0)
+            error_msg_and_die(_("Cannot seek to the end of journal"));
+
+        if (abrt_journal_save_current_position(journal, ABRT_JOURNAL_WATCH_STATE_FILE) < 0)
+            log_warning("Failed to save the starting cursor position");
+    }
+
+    if (cursor && abrt_journal_set_cursor(journal, cursor))
+        error_msg_and_die(_("Failed to set systemd-journal cursor '%s'"), cursor);
+
     if (abrt_journal_set_journal_filter(journal, coredump_journal_filter) < 0)
         error_msg_and_die(_("Cannot filter systemd-journal to systemd-coredump data only"));
 
     g_list_free(coredump_journal_filter);
-
-    if ((opts & OPT_e) && abrt_journal_seek_tail(journal) < 0)
-        error_msg_and_die(_("Cannot seek to the end of journal"));
-
-    if (cursor && abrt_journal_set_cursor(journal, cursor))
-        error_msg_and_die(_("Failed to set systemd-journal cursor '%s'"), cursor);
 
     if ((opts & OPT_f))
     {

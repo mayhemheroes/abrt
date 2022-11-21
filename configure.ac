@@ -160,7 +160,7 @@ PKG_CHECK_MODULES([DBUS], [dbus-1])
 PKG_CHECK_MODULES([LIBXML], [libxml-2.0])
 PKG_CHECK_MODULES([LIBREPORT], [libreport >= $LIBREPORT_VERSION])
 PKG_CHECK_MODULES([LIBREPORT_GTK], [libreport-gtk >= $LIBREPORT_VERSION])
-PKG_CHECK_MODULES([LIBSOUP], [libsoup-2.4])
+PKG_CHECK_MODULES([LIBSOUP], [libsoup-3.0])
 PKG_CHECK_MODULES([GIO], [gio-2.0])
 PKG_CHECK_MODULES([GIO_UNIX], [gio-unix-2.0])
 PKG_CHECK_MODULES([SATYR], [satyr])
@@ -380,18 +380,6 @@ ABRT_PARSE_WITH([polkit]))
     AC_SUBST([HAVE_POLKIT], ["False"])
 [fi]
 
-AC_ARG_WITH(retrace,
-    AS_HELP_STRING([--with-retrace],
-        [Add abrt-retrace-client plugin (default is YES)]),
-    ABRT_PARSE_WITH([retrace]))
-
-[if test -z "$NO_RETRACE"]
-[then]
-    AM_CONDITIONAL(BUILD_RETRACE_CLIENT, true)
-[else]
-    AM_CONDITIONAL(BUILD_RETRACE_CLIENT, false)
-[fi]
-
 # Initialize the test suite.
 AC_CONFIG_TESTDIR(tests)
 AC_CONFIG_FILES([tests/Makefile tests/atlocal])
@@ -430,7 +418,6 @@ AC_CONFIG_FILES([
 	src/configuration-gui/Makefile
 	src/configuration-gui/abrt_gui.pc
 	src/dbus/Makefile
-	src/plugins/abrt-action-install-debuginfo
 	src/plugins/abrt-action-analyze-vmcore
 	src/plugins/abrt-action-analyze-vulnerability
 	src/plugins/abrt-action-check-oops-for-hw-error
