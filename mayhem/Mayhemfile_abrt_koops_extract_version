@@ -1,0 +1,5 @@
+project: abrt
+target: abrt-koops-extract-version
+
+cmds:
+  - cmd: /fuzz_abrt_koops_extract_version
