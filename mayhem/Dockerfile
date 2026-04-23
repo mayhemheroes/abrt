@@ -5,7 +5,6 @@ RUN yum install rpm-build -y
 COPY . /repo
 WORKDIR /repo
 RUN ./autogen.sh sysdeps --install
-RUN tito build --rpm --test
 RUN ./autogen.sh
 RUN ./configure --prefix=/install
 RUN make -j8
