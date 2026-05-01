@@ -6,7 +6,7 @@ COPY . /repo
 WORKDIR /repo
 RUN ./autogen.sh sysdeps --install
 RUN ./autogen.sh
-RUN ./configure --prefix=/install
+RUN ./configure --prefix=/install --without-rpm
 RUN make -j8
 RUN make install
 RUN dnf install clang -y
